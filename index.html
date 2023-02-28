@@ -1,1 +1,100 @@
-Github Pages index
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+/* CSS goes here. */
+
+</style>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
+<script>
+
+var k = 100;
+var w = 1000;
+var h = 1000;
+var r = 50;
+var c = 250;
+var max_iteration = 10;
+var dataset = [];
+
+for (i = 0; i < k; i++) { 
+	//console.log("started iteration " + i);
+	dataset.push({idx:i, iteration:0});
+};	
+
+var svg = d3.select("body")
+	.append("svg")
+	.attr("width", w)
+	.attr("height", h);
+var getRand = function(i) {
+	return Math.floor(Math.random() * i) + 1;
+};
+var circles = svg.selectAll("circle")
+	.data(dataset)
+	.enter()
+	.append("circle")
+	.attr("cx", w/2)
+	.attr("cy", h/2)
+	.attr("r", r)
+	.attr("fill", "steelblue")
+	.attr("stroke", "white")
+	.attr("stroke-width", 1)
+	.style("opacity", 0.5)
+	.transition()
+	.delay(2000)
+	.each(slide)
+;	
+
+function slide() {
+  var circle = d3.select(this);
+  //console.log(circle[0][0].__data__.iteration);
+  (function repeat() {
+	circle = circle.transition()
+		.attr("cx", 
+			function(d, i) {
+				return getRand(w);
+			}
+		)
+		.attr("cy", 
+			function(d, i) {
+				return getRand(h);
+			}
+		)
+		.attr("r", 
+			function(d) {
+				return getRand(r);
+			}
+		)
+		.attr("fill",
+			function(d, i) {
+				return "rgb(" + getRand(c) + "," + getRand(c) + "," + getRand(c) + ")";
+			}
+		)
+		.ease("linear")
+		.duration(3000);
+	if (++circle[0][0].__data__.iteration < max_iteration) {
+		//console.log(circle[0][0].__data__);
+		circle.each("end", repeat);
+	}
+	else {
+		//console.log("subscription over");
+		circle.each("end", complete);
+	}
+  })();
+};
+function complete() {
+	d3.select(this)
+		.transition()
+		.attr("cx", w/2)
+		.attr("cy", h/2)
+		.attr("r", r)
+		.attr("fill", "steelblue")
+		.ease("cubic-out")
+		.duration(3000)
+	;
+};	
+
+</script>
+</body>
+</HTML>
